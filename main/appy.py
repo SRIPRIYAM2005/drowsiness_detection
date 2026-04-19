@@ -159,5 +159,18 @@ def get_sessions():
     conn.close()
     return jsonify([{"id": r[0], "start": r[1], "end": r[2]} for r in rows])
 
+@app.route('/about')
+def about():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    return render_template("about.html")
+
+@app.route('/faq')
+def faq():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    return render_template('faq.html')
+
+
 if __name__ == "__main__":
     app.run(debug=True, use_reloader=False, threaded=True)
