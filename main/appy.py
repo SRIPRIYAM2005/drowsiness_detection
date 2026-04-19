@@ -7,7 +7,13 @@ from database import init_db, DB_PATH
 from drowsiness import DrowsinessMonitor
 
 app = Flask(__name__)
+# Crucial for Render: ensure sessions are handled strictly
 app.secret_key = os.environ.get("SECRET_KEY", "secret_key")
+app.config.update(
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax',
+)
 
 # Ensure DB is ready on startup
 with app.app_context():
@@ -87,7 +93,7 @@ def start_monitoring():
 
     cleanup_monitor()
     monitor = DrowsinessMonitor(db_path=DB_PATH, user_id=session["user_id"])
-    monitor.create_session() # Initialize the DB entry
+    monitor.create_session()
     return jsonify({"message": "Monitoring session initialized"})
 
 @app.route("/stop", methods=["POST"])
@@ -95,18 +101,23 @@ def stop_monitoring():
     cleanup_monitor()
     return jsonify({"message": "Monitoring stopped"})
 
-# --- NEW PROCESS ROUTE FOR OPTION B ---
+# --- SELF-HEALING PROCESS ROUTE ---
 @app.route("/api/process", methods=["POST"])
 def process_frame():
     global monitor
+    
+    # If monitor is None, try to re-initialize it using the active session
     if monitor is None:
-        return jsonify({"error": "Session not started"}), 400
+        if "user_id" in session:
+            monitor = DrowsinessMonitor(db_path=DB_PATH, user_id=session["user_id"])
+            monitor.create_session()
+        else:
+            return jsonify({"error": "Session lost, please re-login"}), 400
     
     file = request.files.get("file")
     if not file:
         return jsonify({"error": "No image provided"}), 400
 
-    # Process the image bytes using the method we added to drowsiness.py
     image_bytes = file.read()
     stats = monitor.process_web_frame(image_bytes)
     return jsonify(stats)
@@ -133,7 +144,7 @@ def api_live():
         return jsonify({"ear": 0, "perclos": 0, "eye_closed": 0, "fps": 0, "drowsy": False})
     return jsonify(monitor.get_latest_stats())
 
-# --- DASHBOARD & DATA ROUTES ---
+# --- OTHER ROUTES ---
 @app.route("/dashboard")
 def dashboard():
     if "user_id" not in session:
@@ -161,16 +172,13 @@ def get_sessions():
 
 @app.route('/about')
 def about():
-    if 'username' not in session:
-        return redirect(url_for('login'))
+    if 'username' not in session: return redirect(url_for('login'))
     return render_template("about.html")
 
 @app.route('/faq')
 def faq():
-    if 'username' not in session:
-        return redirect(url_for('login'))
+    if 'username' not in session: return redirect(url_for('login'))
     return render_template('faq.html')
-
 
 if __name__ == "__main__":
     app.run(debug=True, use_reloader=False, threaded=True)
