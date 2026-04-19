@@ -21,33 +21,38 @@ function playAlertSound() {
 
 async function startMonitoring() {
     try {
-        // 1. Start the actual webcam in the browser
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         video.srcObject = stream;
         await video.play();
         
-        // 2. Initialize the session on the server
-        const res = await fetch("/start", { method: "POST" });
-        const data = await res.json();
-        console.log(data.message);
-
-        // 3. Show the processed feed from the server
-        document.getElementById("videoFeed").src = "/video_feed";
+        await fetch("/start", { method: "POST" });
         
         if (audioCtx.state === 'suspended') audioCtx.resume();
         
         isMonitoring = true;
-        sendFrameToServer(); // Start the infinite frame loop
+        sendFrameToServer(); 
 
-        // Update text values every 500ms
+        // --- DYNAMIC RETRY LOGIC ---
+        const checkReady = setInterval(async () => {
+            const res = await fetch("/api/live");
+            const data = await res.json();
+            
+            // If EAR > 0, the server has processed at least one frame!
+            if (data.ear > 0) {
+                const videoFeed = document.getElementById("videoFeed");
+                videoFeed.src = "/video_feed?t=" + new Date().getTime();
+                clearInterval(checkReady); // Stop checking once displayed
+                console.log("Feed synchronized successfully.");
+            }
+        }, 1000); // Check every 1 second
+
         if (!liveTimer) {
             liveTimer = setInterval(updateLiveValues, 500);
         }
     } catch (err) {
-        alert("Camera access denied or error: " + err);
+        alert("Camera access denied: " + err);
     }
 }
-
 async function sendFrameToServer() {
     if (!isMonitoring) return;
 
