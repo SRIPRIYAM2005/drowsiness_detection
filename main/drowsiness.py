@@ -36,10 +36,11 @@ class DrowsinessMonitor:
         # MediaPipe Setup
         self.mpFaceMesh = mp.solutions.face_mesh
         self.faceMesh = self.mpFaceMesh.FaceMesh(
-            max_num_faces=1,
-            refine_landmarks=True,
-            min_detection_confidence=0.6,
-            min_tracking_confidence=0.6
+        max_num_faces=1,
+        refine_landmarks=True, 
+        min_detection_confidence=0.5, # Lowering slightly speeds up the initial find
+        min_tracking_confidence=0.5,
+        static_image_mode=False # CRITICAL: This tells MediaPipe to treat frames as a video stream
         )
         self.mpDraw = mp.solutions.drawing_utils
         self.drawSpec = self.mpDraw.DrawingSpec(thickness=1, circle_radius=1)

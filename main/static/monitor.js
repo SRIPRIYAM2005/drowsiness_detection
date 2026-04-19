@@ -56,7 +56,7 @@ async function startMonitoring() {
 async function sendFrameToServer() {
     if (!isMonitoring) return;
 
-    // Use 480p - much better for accuracy than 240p
+    // Maintain 640x480 for accuracy, but lower the JPEG quality slightly
     canvas.width = 640; 
     canvas.height = 480;
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -66,16 +66,19 @@ async function sendFrameToServer() {
         formData.append("file", blob, "frame.jpg");
 
         try {
+            // Use 'keepalive' to speed up repeated fetch requests
             await fetch("/api/process", {
                 method: "POST",
-                body: formData
+                body: formData,
+                keepalive: true 
             });
-            // Keep a small gap so the network doesn't choke
-            if (isMonitoring) setTimeout(sendFrameToServer, 50); 
+            
+            // REDUCE the delay to 30ms (approx 30 FPS target)
+            if (isMonitoring) requestAnimationFrame(() => setTimeout(sendFrameToServer, 30)); 
         } catch (e) {
             if (isMonitoring) setTimeout(sendFrameToServer, 500);
         }
-    }, "image/jpeg", 0.6); // Increased quality to 0.6 for better landmark detection
+    }, "image/jpeg", 0.5); // 0.5 is the "Golden Ratio" for speed vs accuracy
 }
 
 async function stopMonitoring() {

@@ -125,25 +125,26 @@ def process_frame():
 @app.route("/video_feed")
 def video_feed():
     def generate():
-        last_frame_sent = None
+        last_sent_time = 0
         while True:
             if monitor is None:
-                time.sleep(1)
+                time.sleep(0.5)
                 continue
             
             frame = monitor.get_latest_frame()
+            if frame is None:
+                time.sleep(0.01)
+                continue
             
-            # Only send the frame if it's new/different to save bandwidth
-            if frame is None or frame == last_frame_sent:
-                time.sleep(0.1) # Wait for a new frame
+            # Limit the output stream to ~20-25 FPS to prevent network congestion
+            current_time = time.time()
+            if current_time - last_sent_time < 0.04: # 0.04s = 25 FPS
+                time.sleep(0.01)
                 continue
                 
-            last_frame_sent = frame
+            last_sent_time = current_time
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-            
-            # Reduce FPS of the stream to 10-12 FPS for stability on Render
-            time.sleep(0.1) 
             
     return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
