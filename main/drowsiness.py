@@ -9,9 +9,9 @@ import os
 # Constants
 LEFT_EYE = [33, 160, 158, 133, 153, 144]
 RIGHT_EYE = [362, 385, 387, 263, 373, 380]
-EAR_THRESHOLD = 0.22 
+EAR_THRESHOLD = 0.20
 WINDOW_SIZE = 60     
-PERCLOS_THRESHOLD = 0.35
+PERCLOS_THRESHOLD = 0.33
 
 def EAR(eye):
     p1, p2, p3, p4, p5, p6 = eye
@@ -37,9 +37,9 @@ class DrowsinessMonitor:
         self.mpFaceMesh = mp.solutions.face_mesh
         self.faceMesh = self.mpFaceMesh.FaceMesh(
             max_num_faces=1,
-            refine_landmarks=False,
-            min_detection_confidence=0.5,
-            min_tracking_confidence=0.5
+            refine_landmarks=True,
+            min_detection_confidence=0.6,
+            min_tracking_confidence=0.6
         )
         self.mpDraw = mp.solutions.drawing_utils
         self.drawSpec = self.mpDraw.DrawingSpec(thickness=1, circle_radius=1)

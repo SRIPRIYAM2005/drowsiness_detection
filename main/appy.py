@@ -179,6 +179,20 @@ def get_sessions():
     conn.close()
     return jsonify([{"id": r[0], "start": r[1], "end": r[2]} for r in rows])
 
+@app.route("/api/perclos/session/<int:session_id>")
+def get_session_data(session_id):
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT timestamp, perclos
+        FROM perclos_data
+        WHERE session_id=?
+        ORDER BY timestamp
+    """, (session_id,))
+    rows = cur.fetchall()
+    conn.close()
+    return jsonify([{"time": r[0], "perclos": r[1]} for r in rows])
+
 @app.route('/about')
 def about():
     if 'username' not in session: return redirect(url_for('login'))

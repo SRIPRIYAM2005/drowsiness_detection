@@ -56,8 +56,9 @@ async function startMonitoring() {
 async function sendFrameToServer() {
     if (!isMonitoring) return;
 
-    canvas.width = 320; // Reduce resolution to 320p for faster processing
-    canvas.height = 240;
+    // Use 480p - much better for accuracy than 240p
+    canvas.width = 640; 
+    canvas.height = 480;
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     canvas.toBlob(async (blob) => {
@@ -69,15 +70,12 @@ async function sendFrameToServer() {
                 method: "POST",
                 body: formData
             });
-            // ONLY request the next frame AFTER the previous one is done
-            if (isMonitoring) {
-                setTimeout(sendFrameToServer, 100); // Small 100ms gap to let the server breathe
-            }
+            // Keep a small gap so the network doesn't choke
+            if (isMonitoring) setTimeout(sendFrameToServer, 50); 
         } catch (e) {
-            console.error("Server busy...");
-            if (isMonitoring) setTimeout(sendFrameToServer, 1000); // Retry later if failed
+            if (isMonitoring) setTimeout(sendFrameToServer, 500);
         }
-    }, "image/jpeg", 0.3); // Quality 0.3 is enough for MediaPipe
+    }, "image/jpeg", 0.6); // Increased quality to 0.6 for better landmark detection
 }
 
 async function stopMonitoring() {
