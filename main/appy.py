@@ -1,27 +1,25 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, Response
 import sqlite3
-import threading
 import time
 import os
 
-# Assuming these are your local files
 from database import init_db, DB_PATH
 from drowsiness import DrowsinessMonitor
 
 app = Flask(__name__)
-app.secret_key = "secret_key"
+app.secret_key = os.environ.get("SECRET_KEY", "secret_key")
+
+# Ensure DB is ready on startup
+with app.app_context():
+    init_db()
 
 monitor = None
-monitor_thread = None
 
-# --- SAFETY CLEANUP HELPER ---
 def cleanup_monitor():
-    global monitor, monitor_thread
+    global monitor
     if monitor:
-        monitor.stop()
-        time.sleep(0.5) # Give hardware time to release
+        monitor.end_session()
     monitor = None
-    monitor_thread = None
 
 # --- AUTH & NAVIGATION ROUTES ---
 @app.route("/")
@@ -74,18 +72,6 @@ def logout():
     session.clear()
     return redirect(url_for("landing"))
 
-@app.route('/about')
-def about():
-    if 'username' not in session:
-        return redirect(url_for('login'))
-    return render_template("about.html")
-
-@app.route('/faq')
-def faq():
-    if 'username' not in session:
-        return redirect(url_for('login'))
-    return render_template('faq.html')
-
 # --- MONITORING ROUTES ---
 @app.route("/monitor")
 def monitor_page():
@@ -95,32 +81,46 @@ def monitor_page():
 
 @app.route("/start", methods=["POST"])
 def start_monitoring():
-    global monitor, monitor_thread
+    global monitor
     if "user_id" not in session:
         return jsonify({"error": "Not logged in"}), 401
 
-    cleanup_monitor() # Kill any existing zombie processes
-
+    cleanup_monitor()
     monitor = DrowsinessMonitor(db_path=DB_PATH, user_id=session["user_id"])
-    monitor_thread = threading.Thread(target=monitor.start, daemon=True)
-    monitor_thread.start()
-    return jsonify({"message": "Monitoring started"})
+    monitor.create_session() # Initialize the DB entry
+    return jsonify({"message": "Monitoring session initialized"})
 
 @app.route("/stop", methods=["POST"])
 def stop_monitoring():
     cleanup_monitor()
     return jsonify({"message": "Monitoring stopped"})
 
+# --- NEW PROCESS ROUTE FOR OPTION B ---
+@app.route("/api/process", methods=["POST"])
+def process_frame():
+    global monitor
+    if monitor is None:
+        return jsonify({"error": "Session not started"}), 400
+    
+    file = request.files.get("file")
+    if not file:
+        return jsonify({"error": "No image provided"}), 400
+
+    # Process the image bytes using the method we added to drowsiness.py
+    image_bytes = file.read()
+    stats = monitor.process_web_frame(image_bytes)
+    return jsonify(stats)
+
 @app.route("/video_feed")
 def video_feed():
     def generate():
         while True:
-            if monitor is None or not monitor.running:
-                time.sleep(0.2)
+            if monitor is None:
+                time.sleep(0.5)
                 continue
             frame = monitor.get_latest_frame()
             if frame is None:
-                time.sleep(0.01)
+                time.sleep(0.1)
                 continue
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
@@ -140,19 +140,13 @@ def dashboard():
         return redirect(url_for("login"))
     return render_template("dashboard.html", username=session["username"])
 
-overlay_enabled = False
-
-#new route
 @app.route("/api/overlay", methods=["POST"])
 def toggle_overlay():
-    global overlay_enabled
     data = request.get_json()
-    overlay_enabled = data.get("enabled", False)
-
+    enabled = data.get("enabled", False)
     if monitor:
-        monitor.set_overlay(overlay_enabled)
-
-    return jsonify({"success": True, "overlay": overlay_enabled})
+        monitor.set_overlay(enabled)
+    return jsonify({"success": True, "overlay": enabled})
 
 @app.route("/api/sessions")
 def get_sessions():
@@ -160,32 +154,10 @@ def get_sessions():
         return jsonify([])
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
-    cur.execute("""
-        SELECT id, start_time, end_time
-        FROM sessions
-        WHERE user_id=?
-        ORDER BY start_time DESC
-    """, (session["user_id"],))
+    cur.execute("SELECT id, start_time, end_time FROM sessions WHERE user_id=? ORDER BY start_time DESC", (session["user_id"],))
     rows = cur.fetchall()
     conn.close()
     return jsonify([{"id": r[0], "start": r[1], "end": r[2]} for r in rows])
 
-@app.route("/api/perclos/session/<int:session_id>")
-def get_session_data(session_id):
-    conn = sqlite3.connect(DB_PATH)
-    cur = conn.cursor()
-    cur.execute("""
-        SELECT timestamp, perclos
-        FROM perclos_data
-        WHERE session_id=?
-        ORDER BY timestamp
-    """, (session_id,))
-    rows = cur.fetchall()
-    conn.close()
-    return jsonify([{"time": r[0], "perclos": r[1]} for r in rows])
-
-# --- SYSTEM START ---
 if __name__ == "__main__":
-    init_db()
-    # Critical flags for Windows stability
     app.run(debug=True, use_reloader=False, threaded=True)

@@ -4,14 +4,13 @@ import numpy as np
 import time
 import sqlite3
 import threading
-import winsound
-
+import os
 
 # Constants
 LEFT_EYE = [33, 160, 158, 133, 153, 144]
 RIGHT_EYE = [362, 385, 387, 263, 373, 380]
-EAR_THRESHOLD = 0.22 # Adjusted slightly for general use
-WINDOW_SIZE = 60     # Smaller window is more responsive
+EAR_THRESHOLD = 0.22 
+WINDOW_SIZE = 60     
 PERCLOS_THRESHOLD = 0.35
 
 def EAR(eye):
@@ -30,15 +29,15 @@ class DrowsinessMonitor:
         self.session_id = None
         self.eye_states = []
         self.latest_frame = None
-        self.last_beep = 0
+        self.last_save = time.time()
         self.latest_stats = {"ear": 0, "perclos": 0, "eye_closed": 0, "fps": 0, "drowsy": False}
         self.lock = threading.Lock()
 
-        # MediaPipe Setup (Optimized for performance)
+        # MediaPipe Setup
         self.mpFaceMesh = mp.solutions.face_mesh
         self.faceMesh = self.mpFaceMesh.FaceMesh(
             max_num_faces=1,
-            refine_landmarks=False, # DISABLED to prevent friend's laptop crash
+            refine_landmarks=False,
             min_detection_confidence=0.5,
             min_tracking_confidence=0.5
         )
@@ -48,7 +47,8 @@ class DrowsinessMonitor:
     def create_session(self):
         conn = sqlite3.connect(self.db_path)
         cur = conn.cursor()
-        cur.execute("INSERT INTO sessions (user_id, start_time) VALUES (?, datetime('now','+5 hours','+30 minutes'))", (self.user_id,))
+        # Using standard 'now' for cloud compatibility
+        cur.execute("INSERT INTO sessions (user_id, start_time) VALUES (?, datetime('now'))", (self.user_id,))
         self.session_id = cur.lastrowid
         conn.commit()
         conn.close()
@@ -57,7 +57,7 @@ class DrowsinessMonitor:
         if self.session_id:
             conn = sqlite3.connect(self.db_path)
             cur = conn.cursor()
-            cur.execute("UPDATE sessions  SET end_time=datetime('now','+5 hours','+30 minutes') WHERE id=?", (self.session_id,))
+            cur.execute("UPDATE sessions SET end_time=datetime('now') WHERE id=?", (self.session_id,))
             conn.commit()
             conn.close()
 
@@ -70,92 +70,71 @@ class DrowsinessMonitor:
         conn.commit()
         conn.close()
 
-    def start(self):
-        self.eye_states = []
-        self.running = True
-        self.create_session()
+    # --- NEW METHOD FOR OPTION B ---
+    def process_web_frame(self, image_bytes):
+        """Processes a single frame sent from the browser."""
+        # Convert bytes to OpenCV image
+        nparr = np.frombuffer(image_bytes, np.uint8)
+        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
         
-        # Using CAP_DSHOW for Windows stability
-        cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-        # cap = cv2.flip(cap,1)
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+        if img is None:
+            return self.latest_stats
 
-        pTime = time.time()
-        last_save = time.time()
+        # Pre-processing
+        img = cv2.flip(img, 1)
+        imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        results = self.faceMesh.process(imgRGB)
 
-        while self.running:
-            success, img = cap.read()
-            if not success:
-                time.sleep(0.01)
-                continue
-            img = cv2.flip(img ,1)
-            imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            results = self.faceMesh.process(imgRGB)
+        ear, perclos, eye_closed, drowsy = 0.0, 0.0, 0, False
 
-            ear, perclos, eye_closed, drowsy = 0.0, 0.0, 0, False
+        if results.multi_face_landmarks:
+            for faceLMS in results.multi_face_landmarks:
+                ih, iw, _ = img.shape
+                left_eye, right_eye = [], []
 
-            if results.multi_face_landmarks:
-                for faceLMS in results.multi_face_landmarks:
-                    ih, iw, _ = img.shape
-                    left_eye, right_eye = [], []
+                for idx in LEFT_EYE:
+                    lm = faceLMS.landmark[idx]
+                    left_eye.append((int(lm.x * iw), int(lm.y * ih)))
+                for idx in RIGHT_EYE:
+                    lm = faceLMS.landmark[idx]
+                    right_eye.append((int(lm.x * iw), int(lm.y * ih)))
 
-                    for idx in LEFT_EYE:
-                        lm = faceLMS.landmark[idx]
-                        left_eye.append((int(lm.x * iw), int(lm.y * ih)))
-                    for idx in RIGHT_EYE:
-                        lm = faceLMS.landmark[idx]
-                        right_eye.append((int(lm.x * iw), int(lm.y * ih)))
-
-                    ear = (EAR(left_eye) + EAR(right_eye)) / 2
-                    eye_closed = 1 if ear < EAR_THRESHOLD else 0
+                ear = (EAR(left_eye) + EAR(right_eye)) / 2
+                eye_closed = 1 if ear < EAR_THRESHOLD else 0
+                
+                with self.lock:
                     self.eye_states.append(eye_closed)
-                    if len(self.eye_states) > WINDOW_SIZE: self.eye_states.pop(0)
-
+                    if len(self.eye_states) > WINDOW_SIZE: 
+                        self.eye_states.pop(0)
                     perclos = sum(self.eye_states) / len(self.eye_states)
-                    drowsy = perclos > PERCLOS_THRESHOLD
+                
+                drowsy = perclos > PERCLOS_THRESHOLD
 
-                    # if self.overlay_landmarks:
-                    #     self.mpDraw.draw_landmarks(img, faceLMS, self.mpFaceMesh.FACEMESH_CONTOURS, self.drawSpec, self.drawSpec)
-                    #     if drowsy:
-                    #         cv2.putText(img, "ALERT: DROWSY", (50, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 3)
+                if self.overlay_landmarks:
+                    self.mpDraw.draw_landmarks(img, faceLMS, self.mpFaceMesh.FACEMESH_CONTOURS, self.drawSpec, self.drawSpec)
 
-                    # draw landmarks only
-                    if self.overlay_landmarks:
-                        self.mpDraw.draw_landmarks(img,  faceLMS, self.mpFaceMesh.FACEMESH_CONTOURS,  self.drawSpec, self.drawSpec)
+                if drowsy:
+                    cv2.putText(img, "ALERT: DROWSY", (50, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 3)
 
-                    # draw alert ALWAYS when drowsy
-                    if drowsy:
-                        cv2.putText( img, "ALERT: DROWSY",  (50, 100), cv2.FONT_HERSHEY_SIMPLEX, 1,  (0, 0, 255),3)
-                        #winsound
-                        if time.time() - self.last_beep > 2:
-                            winsound.Beep(1000, 800)
-                            self.last_beep = time.time()
-                        
-
-            # FPS and Timing
-            cTime = time.time()
-            fps = 1 / (cTime - pTime) if (cTime - pTime) > 0 else 0
-            pTime = cTime
-
-            if time.time() - last_save >= 1:
-                self.save_record(ear, perclos, eye_closed)
-                last_save = time.time()
-
-            # Thread-safe update
-            with self.lock:
-                self.latest_stats = {
-                    "ear": round(float(ear), 3), "perclos": round(float(perclos), 3),
-                    "eye_closed": int(eye_closed), "fps": round(float(fps), 1), "drowsy": bool(drowsy)
-                }
-                ret, buffer = cv2.imencode(".jpg", img)
-                if ret: self.latest_frame = buffer.tobytes()
+        # Update latest frame and stats
+        with self.lock:
+            ret, buffer = cv2.imencode(".jpg", img)
+            if ret: 
+                self.latest_frame = buffer.tobytes()
             
-            # Windows WaitKey Fix
-            if cv2.waitKey(1) & 0xFF == ord('q'): break
+            self.latest_stats = {
+                "ear": round(float(ear), 3), 
+                "perclos": round(float(perclos), 3),
+                "eye_closed": int(eye_closed), 
+                "drowsy": bool(drowsy)
+            }
 
-        cap.release()
-        self.faceMesh.close() # CRITICAL: Releases C++ memory
+        # Auto-save to DB every 2 seconds
+        if time.time() - self.last_save >= 2:
+            self.save_record(ear, perclos, eye_closed)
+            self.last_save = time.time()
+
+        return self.latest_stats
 
     def stop(self):
         self.running = False
@@ -163,13 +142,7 @@ class DrowsinessMonitor:
         with self.lock:
             self.eye_states = []
             self.latest_frame = None
-            self.latest_stats = {
-                "ear": 0,
-                "perclos": 0,
-                "eye_closed": 0,
-                "fps": 0,
-                "drowsy": False
-            }
+            self.latest_stats = {"ear": 0, "perclos": 0, "eye_closed": 0, "fps": 0, "drowsy": False}
 
     def set_overlay(self, enabled):
         with self.lock: self.overlay_landmarks = enabled
