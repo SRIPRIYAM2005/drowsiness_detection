@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selection Hub | AI Monitor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="landing-page">
+        <div class="blob"></div>
+        <div class="container">
+            <header style="margin-bottom: 40px; text-align: center;">
+                <h1 style="color: white; font-size: 2.5rem;">Control <span class="text-gradient">Center</span></h1>
+                <p style="color: #94a3b8;">Welcome back! Select a module to continue.</p>
+            </header>
+
+            <div class="selection-grid">
+                <a href="/monitor" class="glass-card selection-card">
+                    <div class="icon">👁️</div>
+                    <h3>Live Monitor</h3>
+                    <p>Start real-time drowsiness detection.</p>
+                </a>
+
+                <a href="/dashboard" class="glass-card selection-card">
+                    <div class="icon">📊</div>
+                    <h3>Analytics</h3>
+                    <p>View history and PERCLOS statistics.</p>
+                </a>
+
+                <a href="/faq" class="glass-card selection-card">
+                    <div class="icon">❓</div>
+                    <h3>FAQ</h3>
+                    <p>Common questions and system usage.</p>
+                </a>
+
+                <a href="/about" class="glass-card selection-card">
+                    <div class="icon">ℹ️</div>
+                    <h3>About AI</h3>
+                    <p>Learn about EAR and MediaPipe logic.</p>
+                </a>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="/logout" class="link-text" style="color: #f87171;">Logout Securely</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

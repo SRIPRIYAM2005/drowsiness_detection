@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard | AI Monitor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-body">
+    <div class="dashboard-wrapper">
+        <div class="topbar">
+            <h2>System <span class="text-gradient">Analytics</span></h2>
+            <div class="actions">
+                <a href="/home" class="btn btn-secondary">← Back to Hub</a>
+                <a href="/monitor" class="btn btn-primary">Go to Monitor</a>
+                <a href="/logout" class="btn btn-outline">Logout</a>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <div class="glass-card history-section">
+                <h3>Session History</h3>
+                <div class="table-container">
+                    <table id="sessionTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="quick-stats-grid">
+                <div class="glass-card stat-mini">
+                    <span>Total Duration</span>
+                    <h2 id="totalTime">--:--</h2>
+                </div>
+                <div class="glass-card stat-mini danger-border">
+                    <span>Fatigue Peaks</span>
+                    <h2 id="peakCount">0</h2>
+                </div>
+                <div class="glass-card stat-mini">
+                    <span>Avg. Alertness</span>
+                    <h2 id="avgScore">0%</h2>
+                </div>
+            </div>
+
+            <div class="glass-card chart-section">
+                <h3>PERCLOS Fatigue Graph</h3>
+                <div class="canvas-wrapper">
+                    <canvas id="perclosChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+        <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+    </body>
+</html>
+</body>
+</html>

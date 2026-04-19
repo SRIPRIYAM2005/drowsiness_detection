@@ -1,0 +1,253 @@
+/* ============================= */
+/* 🌐 GLOBAL STYLES */
+/* ============================= */
+
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+
+    /* Layered premium background */
+    background: radial-gradient(circle at 20% 30%, #1e293b, #0f172a 60%),
+                radial-gradient(circle at 80% 70%, rgba(45,108,223,0.15), transparent);
+}
+
+
+/* ============================= */
+/* 🌌 BACKGROUND BLOB */
+/* ============================= */
+
+.blob {
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    background: linear-gradient(135deg, rgba(45, 108, 223, 0.2), rgba(0, 212, 255, 0.1));
+    filter: blur(100px);
+    border-radius: 50%;
+    top: -100px;
+    left: -100px;
+    z-index: 0;
+}
+
+
+/* ============================= */
+/* 📦 MAIN CONTAINER */
+/* ============================= */
+
+.landing-page {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    position: relative;
+}
+
+
+/* ============================= */
+/* 🧊 GLASS CARD */
+/* ============================= */
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 32px;
+
+    padding: 4rem 3rem;
+    max-width: 1000px;
+    width: 100%;
+
+    text-align: center;
+
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    z-index: 1;
+
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+
+/* ============================= */
+/* 📝 HEADINGS */
+/* ============================= */
+
+.landing-page h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 1rem;
+    letter-spacing: -1px;
+}
+
+.landing-page p {
+    color: #94a3b8;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+    max-width: 650px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+/* ============================= */
+/* 🌈 TEXT GRADIENT */
+/* ============================= */
+
+.text-gradient {
+    background: linear-gradient(to right, #60a5fa, #2d6cdf);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+
+/* ============================= */
+/* 🔘 BUTTON */
+/* ============================= */
+
+.btn-primary {
+    display: inline-block;
+    background: linear-gradient(135deg, #2d6cdf, #1e4fbf);
+    color: white;
+
+    padding: 16px 45px;
+    font-size: 1.1rem;
+    font-weight: 700;
+
+    text-decoration: none;
+    border-radius: 14px;
+
+    transition: all 0.3s ease;
+
+    box-shadow: 0 10px 25px rgba(45, 108, 223, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 15px 35px rgba(45, 108, 223, 0.5);
+}
+
+
+/* ============================= */
+/* 🎯 GRID */
+/* ============================= */
+
+.selection-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px;
+    margin-top: 2rem;
+}
+
+
+/* ============================= */
+/* 🧩 CARDS */
+/* ============================= */
+
+.selection-card {
+    text-align: center;
+    padding: 30px 20px;
+
+    text-decoration: none;
+
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.08);
+
+    backdrop-filter: blur(15px);
+
+    transition: all 0.3s ease;
+}
+
+.selection-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    border-color: #2d6cdf;
+    background: rgba(255, 255, 255, 0.08);
+
+    box-shadow: 0 15px 40px rgba(45,108,223,0.25);
+}
+
+
+/* ============================= */
+/* 🎨 CARD CONTENT */
+/* ============================= */
+
+.selection-card .icon {
+    font-size: 42px;
+    margin-bottom: 12px;
+
+    filter: drop-shadow(0 0 10px rgba(96,165,250,0.6));
+}
+
+.selection-card h3 {
+    color: white;
+    margin-bottom: 8px;
+    font-size: 1.2rem;
+}
+
+.selection-card p {
+    color: #94a3b8;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+
+/* ============================= */
+/* 🔐 LOGOUT */
+/* ============================= */
+
+.logout {
+    display: inline-block;
+    margin-top: 2rem;
+    color: #f87171;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.logout:hover {
+    text-decoration: underline;
+}
+
+
+/* ============================= */
+/* ✨ ANIMATIONS */
+/* ============================= */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* ============================= */
+/* 📱 RESPONSIVE */
+/* ============================= */
+
+@media (max-width: 900px) {
+    .selection-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 500px) {
+    .selection-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .landing-page h1 {
+        font-size: 2.2rem;
+    }
+
+    .glass-card {
+        padding: 2.5rem 1.5rem;
+    }
+}

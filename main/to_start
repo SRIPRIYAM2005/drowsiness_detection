@@ -1,0 +1,6 @@
+to start 
+ venv\Scripts\activate
+ python appy.py
+
+to stop
+    deactivate
