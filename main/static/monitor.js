@@ -56,12 +56,10 @@ async function startMonitoring() {
 async function sendFrameToServer() {
     if (!isMonitoring) return;
 
-    // Draw the current video frame to our hidden canvas
-    canvas.width = 640;
-    canvas.height = 480;
+    canvas.width = 320; // Reduce resolution to 320p for faster processing
+    canvas.height = 240;
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    // Convert to a small JPEG blob to keep it fast
     canvas.toBlob(async (blob) => {
         const formData = new FormData();
         formData.append("file", blob, "frame.jpg");
@@ -71,15 +69,15 @@ async function sendFrameToServer() {
                 method: "POST",
                 body: formData
             });
+            // ONLY request the next frame AFTER the previous one is done
+            if (isMonitoring) {
+                setTimeout(sendFrameToServer, 100); // Small 100ms gap to let the server breathe
+            }
         } catch (e) {
-            console.error("Network lag, skipping frame...");
+            console.error("Server busy...");
+            if (isMonitoring) setTimeout(sendFrameToServer, 1000); // Retry later if failed
         }
-
-        // Loop using requestAnimationFrame for smoothness
-        if (isMonitoring) {
-            requestAnimationFrame(sendFrameToServer);
-        }
-    }, "image/jpeg", 0.4); // 0.4 quality is plenty for EAR detection
+    }, "image/jpeg", 0.3); // Quality 0.3 is enough for MediaPipe
 }
 
 async function stopMonitoring() {
