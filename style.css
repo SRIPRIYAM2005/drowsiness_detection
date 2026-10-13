@@ -1,0 +1,61 @@
+/* GLOBAL */
+body {
+    margin: 0;
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    background: #f4f6fb;
+    color: #333;
+}
+
+.page {
+    padding: 20px 30px;
+}
+
+/* TOP BAR */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+/* BUTTONS */
+.actions {
+    display: flex;
+    gap: 10px;
+}
+
+.actions button,
+.actions a,
+.btn {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    background: #2d6cdf;
+    color: white;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.actions button:hover,
+.actions a:hover,
+.btn:hover {
+    background: #1b4fbf;
+}
+
+/* GRID */
+.main-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+    .main-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .actions {
+        flex-direction: column;
+    }
+}

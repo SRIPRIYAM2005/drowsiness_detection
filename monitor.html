@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Monitor | Drowsiness Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='monitor.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+</head>
+<body class="monitor-body">
+    <div class="monitor-wrapper">
+        <div class="topbar">
+            <h2>Live <span class="text-gradient">Detection</span></h2>
+            <div class="actions">
+                <a href="/home" class="btn btn-secondary">← Back to Hub</a>
+                <button onclick="startMonitoring()" class="btn btn-primary">▶ Start Engine</button>
+                <button onclick="stopMonitoring()" class="btn btn-danger">⏹ Stop</button>
+                <a href="/logout" class="btn btn-outline">Logout</a>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <div class="glass-card video-panel">
+                <div class="panel-header">
+                    <span class="live-indicator">● LIVE FEED</span>
+                    <span id="fpsDisplay">FPS: <span id="fpsValue">0</span></span>
+                </div>
+                <div class="video-container">
+                    <img id="videoFeed" src="" alt="Camera Feed">
+                </div>
+            </div>
+
+            <div class="stats-panel">
+                <div class="glass-card stat-card">
+                    <h3>Telemetry</h3>
+                    
+                    <div class="stat-box">
+                        <label>EAR (Eye Aspect Ratio)</label>
+                        <div class="value-row">
+                            <strong id="earValue" class="mono">0.000</strong>
+                            <div class="mini-bar"><div id="earBar" style="width: 0%"></div></div>
+                        </div>
+                    </div>
+
+                    <div class="stat-box">
+                        <label>PERCLOS (Fatigue)</label>
+                        <div class="value-row">
+                            <strong id="perclosValue" class="mono">0.000</strong>
+                            <div class="mini-bar"><div id="perclosBar" style="width: 0%"></div></div>
+                        </div>
+                    </div>
+
+                    <div class="stat-box status-box">
+                        <label>System Status</label>
+                        <strong id="statusValue">IDLE</strong>
+                    </div>
+
+                    <div class="toggle-container">
+                        <label class="switch">
+                            <input type="checkbox" id="landmarkToggle" checked onchange="toggleLandmarks()">
+                            <span class="slider"></span>
+                        </label>
+                        <span>Render Landmarks</span>
+                    </div>
+                </div>
+
+                <a href="/dashboard" class="glass-card mini-link-card">
+                    <span>📊 View Full Analytics</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='monitor.js') }}"></script>
+</body>
+</html>

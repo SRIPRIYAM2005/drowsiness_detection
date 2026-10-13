@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | AI Drowsiness Monitor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='auth.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="landing-page">
+        <div class="blob"></div>
+
+        <div class="glass-card auth-card">
+            <h2>Welcome <span class="text-gradient">Back</span></h2>
+            <p class="auth-subtitle">Please log in to access the monitoring system.</p>
+
+            {% if error %}
+                <div class="error-box">
+                    <span class="error-icon">⚠️</span> {{ error }}
+                </div>
+            {% endif %}
+
+            <form method="POST" class="auth-form">
+                <div class="input-group">
+                    <input type="text" name="username" placeholder="Username" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" name="password" placeholder="Password" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-full">Login to Monitor</button>
+                
+                <div class="auth-footer">
+                    <p>Don't have an account? <a href="/register" class="link-text">Register here</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

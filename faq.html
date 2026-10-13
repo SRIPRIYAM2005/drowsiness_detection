@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ | AI Drowsiness Monitor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .faq-body { overflow-y: auto !important; background: #0f172a; color: white; padding-bottom: 50px; }
+        .faq-container { max-width: 800px; margin: 60px auto; padding: 0 20px; }
+        
+        .faq-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .faq-question {
+            padding: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: #f8fafc;
+        }
+
+        .faq-question:hover { background: rgba(255, 255, 255, 0.05); }
+
+        .faq-answer {
+            padding: 0 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease;
+            color: #94a3b8;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 200px; /* Adjust based on content */
+            padding: 10px 20px 25px 20px;
+        }
+
+        .faq-item.active .faq-question { border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: #60a5fa; }
+        .arrow { transition: transform 0.3s ease; }
+        .faq-item.active .arrow { transform: rotate(180deg); }
+    </style>
+</head>
+<body class="faq-body">
+    <div class="blob"></div>
+
+    <div class="faq-container">
+        <div style="margin-bottom: 30px;">
+            <a href="/home" class="btn btn-secondary">← Back to Hub</a>
+        </div>
+
+        <header style="margin-bottom: 50px;">
+            <h1>Frequently Asked <span class="text-gradient">Questions</span></h1>
+            <p style="color: #94a3b8;">Common queries about the AI Drowsiness Detection system.</p>
+        </header>
+
+        <div class="faq-item">
+            <div class="faq-question">How does the system detect drowsiness? <span class="arrow">▾</span></div>
+            <div class="faq-answer">
+                The system uses MediaPipe to track 468 facial landmarks. It specifically monitors the <strong>Eye Aspect Ratio (EAR)</strong>. When your eyes remain closed or partially closed for a sustained period (PERCLOS), the AI triggers a fatigue alert.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">Does it work at night or in low light? <span class="arrow">▾</span></div>
+            <div class="faq-answer">
+                Accuracy depends on your camera's quality. While the AI is robust, it requires a clear view of your eyes. For night driving, using an <strong>Infrared (IR)</strong> camera or ensuring cabin lights are on will significantly improve detection.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">What should I do if the alarm goes off? <span class="arrow">▾</span></div>
+            <div class="faq-answer">
+                <strong>Stop driving immediately.</strong> The system is designed to catch "micro-sleeps." If an alert is triggered, it means your fatigue levels are dangerously high. Pull over at the nearest safe location and rest.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">Why is the Status showing "Idle"? <span class="arrow">▾</span></div>
+            <div class="faq-answer">
+                The status shows "Idle" when the camera feed is not started or if the AI cannot find a face in the frame. Ensure you are positioned centrally in front of the camera and have clicked "Start Monitoring."
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">Is my video data being recorded? <span class="arrow">▾</span></div>
+            <div class="faq-answer">
+                No. The system processes the video stream locally and in real-time. Only the numerical metrics (like EAR and PERCLOS timestamps) are saved to the dashboard for your personal analytics history.
+            </div>
+        </div>
+
+        <div style="margin-top: 50px; text-align: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 30px;">
+            <p style="color: #94a3b8;">Still have questions?</p>
+            <a href="mailto:support@aimonitor.com" class="link-text">Contact Technical Support</a>
+        </div>
+    </div>
+
+    <script>
+        // Simple script to handle accordion toggle
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', () => {
+                const item = question.parentElement;
+                item.classList.toggle('active');
+            });
+        });
+    </script>
+</body>
+</html>

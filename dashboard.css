@@ -1,0 +1,153 @@
+/* Ensure the body allows scrolling */
+.dashboard-body {
+    background: #0f172a;
+    color: white;
+    font-family: 'Inter', sans-serif;
+    padding: 20px;
+    margin: 0;
+    min-height: 100vh;
+    overflow-y: auto !important; /* Force vertical scroll */
+    overflow-x: hidden;
+}
+
+.dashboard-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Fix the Topbar for smaller screens */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; /* Allows buttons to wrap on mobile */
+    gap: 15px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 30px;
+}
+
+/* Fix the Canvas Wrapper so it doesn't "cut off" */
+.canvas-wrapper {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    border-radius: 12px;
+    position: relative;
+    /* Use min-height instead of fixed height for better scaling */
+    min-height: 400px; 
+    height: 60vh; /* Takes 60% of the screen height */
+    width: 100%;
+}
+
+/* NEW: Layout Control */
+.main-grid {
+    display: flex;
+    flex-direction: column; /* Stacks the table and chart vertically */
+    gap: 30px;
+}
+
+/* Glass Card Styling */
+.history-section, .chart-section {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+h3 {
+    margin-bottom: 25px;
+    color: #60a5fa; /* Brighter blue for headers */
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
+
+/* --- CHART OPTIMIZATION --- */
+.chart-section {
+    width: 100%;
+}
+
+
+/* --- TABLE OPTIMIZATION --- */
+.table-container {
+    overflow-x: auto; /* Ensures mobile friendliness */
+}
+
+#sessionTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#sessionTable th {
+    background: rgba(45, 108, 223, 0.15);
+    color: #ffffff;
+    text-align: left;
+    padding: 15px;
+    font-weight: 600;
+    border-bottom: 2px solid rgba(45, 108, 223, 0.3);
+}
+
+#sessionTable td {
+    padding: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: #cbd5e1;
+}
+
+#sessionTable tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+#sessionTable button {
+    background: linear-gradient(135deg, #10b981, #059669);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#sessionTable button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.quick-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.stat-mini {
+    padding: 20px !important;
+    text-align: center;
+}
+
+.stat-mini span {
+    color: #94a3b8;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.stat-mini h2 {
+    margin-top: 10px;
+    font-size: 1.8rem;
+    color: white;
+}
+
+.danger-border {
+    border: 1px solid rgba(239, 68, 68, 0.3) !important;
+}
+
+.danger-border h2 {
+    color: #f87171;
+}

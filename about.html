@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About | AI Drowsiness Monitor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        .about-body { overflow-y: auto !important; background: #0f172a; color: white; }
+        .content-section { max-width: 900px; margin: 60px auto; padding: 0 20px; }
+        .glass-panel { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; padding: 40px; margin-bottom: 40px; }
+        h2 { font-size: 2.5rem; margin-bottom: 20px; color: #60a5fa; }
+        h3 { color: #38bdf8; margin-top: 30px; }
+        p { line-height: 1.8; color: #94a3b8; font-size: 1.1rem; margin-bottom: 20px; }
+        .warning-card { border-left: 5px solid #ef4444; background: rgba(239, 68, 68, 0.1); padding: 20px; border-radius: 8px; }
+        .tech-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+        @media (max-width: 768px) { .tech-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body class="about-body">
+    <div class="blob"></div>
+    
+    <div class="content-section">
+        <div style="margin-bottom: 40px;">
+            <a href="/home" class="btn btn-secondary">← Back to Hub</a>
+        </div>
+
+        <div class="glass-panel">
+            <h1>How it <span class="text-gradient">Works</span></h1>
+            <p>Our AI Drowsiness Detection System is a sophisticated safety tool designed to prevent road accidents caused by driver fatigue. By combining <strong>Computer Vision</strong> and <strong>Deep Learning</strong>, the system monitors physical cues in real-time to determine if a driver is losing focus.</p>
+        </div>
+
+        <div class="glass-panel">
+            <h2>The Core Metrics</h2>
+            <div class="tech-grid">
+                <div>
+                    <h3>1. EAR (Eye Aspect Ratio)</h3>
+                    <p>Using <strong>MediaPipe</strong>, we map 468 facial landmarks. EAR calculates the distance between eyelids. If the ratio drops below a threshold, the system knows the eyes are closing.</p>
+                </div>
+                <div>
+                    <h3>2. PERCLOS</h3>
+                    <p><strong>Percentage of Eye Closure</strong>. This measures the fraction of time the eyes are more than 80% closed over a specific interval. It is the most reliable indicator of long-term fatigue.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-panel">
+            <h2>How This Helps You</h2>
+            <p>Driving while tired is often compared to driving under the influence. This application acts as a <strong>Digital Co-Pilot</strong> that:</p>
+            <ul style="color: #94a3b8; line-height: 2;">
+                <li>Provides instant auditory/visual alerts during micro-sleeps.</li>
+                <li>Tracks fatigue trends over long journeys via the Analytics Dashboard.</li>
+                <li>Identifies high-risk hours in your driving schedule.</li>
+            </ul>
+        </div>
+
+        <div class="glass-panel warning-card">
+            <h2 style="color: #ef4444;">⚠️ Driver Safety Warning</h2>
+            <p style="color: #f87171; font-weight: 600;">This application is an assistive tool, not a replacement for human judgment.</p>
+            <p>Technology can fail due to poor lighting, camera angles, or hardware lag. <strong>Always follow these rules:</strong></p>
+            <ul style="color: #fca5a5;">
+                <li>If you feel tired, <strong>stop driving immediately</strong>, even if the app says "IDLE."</li>
+                <li>Do not rely on the app to "keep you awake."</li>
+                <li>Ensure your camera has a clear, well-lit view of your face.</li>
+                <li>Take a 15-minute break every 2 hours of driving.</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; padding-bottom: 60px;">
+            <p>Stay Safe. Stay Alert.</p>
+            <a href="/monitor" class="btn btn-primary">Launch Monitor</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | AI Drowsiness Monitor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='auth.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="landing-page">
+        <div class="blob"></div>
+
+        <div class="glass-card auth-card">
+            <h2>Join the <span class="text-gradient">Network</span></h2>
+            <p class="auth-subtitle">Create an account to start monitoring driver safety.</p>
+
+            {% if error %}
+                <div class="error-box">
+                    <span class="error-icon">⚠️</span> {{ error }}
+                </div>
+            {% endif %}
+
+            <form method="POST" class="auth-form">
+                <div class="input-group">
+                    <input type="text" name="username" placeholder="Choose Username" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" name="password" placeholder="Create Password" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-full">Create Account</button>
+                
+                <div class="auth-footer">
+                    <p>Already have an account? <a href="/login" class="link-text">Login instead</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
